@@ -58,10 +58,10 @@ public class CameraController : MonoBehaviour, PlayerControls.IPlayerActions
                 // Alternar entre vistas según la tecla.
                 switch (keyPressed)
                 {
-                    case "1":
+                    case "1Pq=U":
                         isFirstPerson = false; // Cambiar a tercera persona.
                         break;
-                    case "2":
+                    case "2Pq=U":
                         isFirstPerson = true; // Cambiar a primera persona.
                         break;
                         // Puedes agregar más casos aquí si lo necesitas.

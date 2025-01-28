@@ -1,5 +1,6 @@
 using UnityEngine.InputSystem;
 using UnityEngine;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour, PlayerControls.IPlayerActions
 {
@@ -28,9 +29,6 @@ public class PlayerController : MonoBehaviour, PlayerControls.IPlayerActions
         controls.Player.Disable();  // Deshabilita las acciones del jugador.
     }
 
-    public void OnNumberKeys(InputAction.CallbackContext context)
-    { }
-
     // Método llamado cuando se recibe la entrada de movimiento
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -56,6 +54,8 @@ public class PlayerController : MonoBehaviour, PlayerControls.IPlayerActions
             lookInput = Vector2.zero;  // Resetea la entrada del mouse cuando se cancela.
         }
     }
+    public void OnNumberKeys(InputAction.CallbackContext context)
+    { }
 
     private void FixedUpdate()
     {
@@ -84,6 +84,35 @@ public class PlayerController : MonoBehaviour, PlayerControls.IPlayerActions
         if (other.CompareTag("PickUp"))  // Si el objeto tiene la etiqueta "PickUp"
         {
             Destroy(other.gameObject);  // Destruir el pick-up al ser recogido.
+        }
+        else if (other.CompareTag("Hurry"))
+        {
+            Destroy(other.gameObject);  // Destruir el objeto "Hurry" al ser recogido.
+            StartCoroutine(ApplyTemporaryBoost());  // Aplicar fuerza temporal.
+        }
+    }
+
+    // Detectar las colisiones con los pick-ups
+    private IEnumerator ApplyTemporaryBoost()
+    {
+        // Calcula la dirección en la que el jugador se está moviendo.
+        Vector3 movementDirection = new Vector3(movementInput.x, 0f, movementInput.y); // Movimiento en el plano XZ
+        movementDirection.Normalize();  // Normalizamos la dirección para evitar que el boost dependa de la velocidad original del movimiento.
+
+        // Si el jugador no está moviéndose (input cero), no aplicamos el boost.
+        if (movementDirection != Vector3.zero)
+        {
+            // Aumentar la velocidad en la dirección de movimiento actual.
+            Vector3 boostForce = movementDirection * 40f; // Fuerza adicional, ajusta la magnitud.
+            rb.AddForce(boostForce, ForceMode.Impulse);  // Aplicamos un impulso en la dirección del movimiento.
+        }
+
+        yield return new WaitForSeconds(1.3f);
+
+        // Asegurarse de que la velocidad final no sea menor que la velocidad mínima.
+        if (rb.velocity.magnitude > speed)
+        {
+            rb.velocity = movementDirection * speed; // Mantener la velocidad mínima.
         }
     }
 }
